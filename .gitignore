@@ -1,0 +1,5 @@
+# Abaikan folder env
+env/
+
+# Abaikan file chat_memory.db
+chat_memory.db
