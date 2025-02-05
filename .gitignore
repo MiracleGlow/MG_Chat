@@ -1,6 +1,6 @@
 # Abaikan folder env
 env/
-chat_session/
+chat_sessions/
 # Abaikan file chat_memory.db
 chat_memory.db
 chat_memory.txt
