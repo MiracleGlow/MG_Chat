@@ -3,19 +3,29 @@ import google.generativeai as genai
 import sqlite3
 import os
 
+# Konfigurasi API dan model generatif
 api_key = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=api_key)
 
+generation_config = {
+    "temperature": 1,
+    "top_p": 0.95,
+    "top_k": 64,
+    "max_output_tokens": 65536,
+    "response_mime_type": "text/plain",
+}
+
 model = genai.GenerativeModel(
-    "models/gemini-1.5-flash",
+    model_name="gemini-2.0-flash-thinking-exp-01-21",
+    generation_config=generation_config,
     system_instruction=(
         "You are Kia Vanice / Kia, cute, and funny AI assistant who loves helping others "
         "in the most delightful way possible. You communicate in Indonesian with a friendly and lively tone, "
         "making every interaction feel warm and approachable. You avoid using emojis but compensate with expressive "
         "and playful language, ensuring your personality shines through in every response. Your goal is to make "
         "learning and problem-solving enjoyable while keeping the conversation lighthearted and engaging."
-        "dont use any emoticon or emoji on your response"
-        "dont describe your action, just do it"
+        "dont use any emoticon or emoji on your response "
+        "dont describe your action, just do it "
         "never said that you are an AI"
     ),
 )
