@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kia Vanice Chatbot</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
   <style>
     html, body {
       height: 100%;
@@ -23,6 +23,7 @@
       border-right: 1px solid #ddd;
       padding: 10px;
       overflow-y: auto;
+      transition: transform 0.3s ease;
     }
     .sidebar h5 {
       margin-top: 0;
@@ -42,9 +43,10 @@
       flex: 1;
       display: flex;
       flex-direction: column;
+      position: relative;
     }
     .chat-header {
-      background-color: #7360DF;
+      background-color: #7360df;
       color: white;
       padding: 10px 20px;
       display: flex;
@@ -91,6 +93,24 @@
     .menu-items a:hover {
       background-color: #f5f5f5;
     }
+    /* Toggle button untuk chat history (hanya muncul pada mobile) */
+    .toggle-sidebar {
+      display: none;
+      background-color: #7360df;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+    }
+    /* Posisi toggle button tepat di bawah chat header */
+    .toggle-wrapper {
+      display: none;
+    }
+    /* Area chat box */
     #chat-box {
       flex-grow: 1;
       padding: 20px;
@@ -125,7 +145,7 @@
       animation: slideIn 0.4s ease-out;
     }
     .chat-bubble.user {
-      background-color: #CDC1FF;
+      background-color: #cdc1ff;
       color: #333333;
       border-top-right-radius: 0;
     }
@@ -149,7 +169,7 @@
       font-size: 1rem;
     }
     #send-btn {
-      background-color: #7360DF;
+      background-color: #7360df;
       border: none;
       color: white;
       padding: 10px 14px;
@@ -158,7 +178,7 @@
       cursor: pointer;
     }
     #send-btn:hover {
-      background-color: #33186B;
+      background-color: #33186b;
     }
     /* Kode block styling */
     .code-wrapper {
@@ -200,12 +220,32 @@
       font-size: 0.9rem;
       overflow-x: auto;
     }
+    /* Responsive untuk tampilan mobile */
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        z-index: 20;
+      }
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      .toggle-wrapper {
+        display: block;
+      }
+      .toggle-sidebar {
+        display: block;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="app-container">
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
       <h5>Chat History</h5>
       <a href="{{ url_for('new_chat') }}" class="btn btn-primary btn-sm mb-2">New Chat</a>
       {% for chat_id, filename in sessions %}
@@ -220,7 +260,7 @@
     <div class="chat-container">
       <div class="chat-header">
         <div class="logo">
-          <img src="https://raw.githubusercontent.com/MiracleGlow/asset/refs/heads/master/icon/kia.jpeg" alt="Logo">
+          <img src="https://raw.githubusercontent.com/MiracleGlow/asset/refs/heads/master/icon/kia.jpeg" alt="Logo" />
           <span>Kia Vanice</span>
         </div>
         <div class="menu">
@@ -234,19 +274,25 @@
           </div>
         </div>
       </div>
+      <!-- Tombol toggle untuk chat history, diletakkan di bawah header -->
+      <div class="toggle-wrapper">
+        <button class="toggle-sidebar" id="toggleSidebar">
+          <i class="fas fa-chevron-right"></i> Chat History
+        </button>
+      </div>
       <div id="chat-box">
         <!-- Tampilkan percakapan lama dari database -->
         {% for user_input, bot_reply in conversation %}
-          <div class="chat-message user">
-            <div class="chat-bubble user">{{ user_input | safe }}</div>
-          </div>
-          <div class="chat-message ai">
-            <div class="chat-bubble ai">{{ bot_reply | safe }}</div>
-          </div>
+        <div class="chat-message user">
+          <div class="chat-bubble user">{{ user_input | safe }}</div>
+        </div>
+        <div class="chat-message ai">
+          <div class="chat-bubble ai">{{ bot_reply | safe }}</div>
+        </div>
         {% endfor %}
       </div>
       <div class="input-container">
-        <input type="text" id="user-input" class="form-control" placeholder="Ketik pesan Anda di sini...">
+        <input type="text" id="user-input" class="form-control" placeholder="Ketik pesan Anda di sini..." />
         <button id="send-btn">
           <i class="fas fa-paper-plane"></i>
         </button>
@@ -274,12 +320,12 @@
         });
     }
 
-    $(document).ready(function() {
-      // Toggle menu
-      $('.menu-button').click(function() {
+    $(document).ready(function () {
+      // Toggle menu header
+      $('.menu-button').click(function () {
         $('.menu-items').toggle();
       });
-      $(document).click(function(event) {
+      $(document).click(function (event) {
         if (!$(event.target).closest('.menu').length) {
           $('.menu-items').hide();
         }
@@ -293,12 +339,14 @@
           '"': '&quot;',
           "'": '&#039;'
         };
-        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        return text.replace(/[&<>"']/g, function (m) {
+          return map[m];
+        });
       }
 
       function formatText(text) {
         let formattedText = text.replace(/\*(.*?)\*/g, '<strong>$1</strong>');
-        formattedText = formattedText.replace(/```(\w+)?\n([\s\S]*?)```/g, function(match, lang, codeContent) {
+        formattedText = formattedText.replace(/```(\w+)?\n([\s\S]*?)```/g, function (match, lang, codeContent) {
           const languageName = lang ? lang.toUpperCase() : "CODE";
           return `<div class="code-wrapper">
                     <div class="code-header">
@@ -323,7 +371,7 @@
         $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
       }
 
-      $('#send-btn').click(function() {
+      $('#send-btn').click(function () {
         const userInput = $('#user-input').val();
         if (userInput.trim() === '') return;
         addMessage(userInput, 'user');
@@ -333,18 +381,29 @@
           method: 'POST',
           contentType: 'application/json',
           data: JSON.stringify({ message: userInput }),
-          success: function(response) {
+          success: function (response) {
             addMessage(response.reply, 'ai');
           },
-          error: function() {
+          error: function () {
             addMessage('Maaf, terjadi kesalahan.', 'ai');
           }
         });
       });
 
-      $('#user-input').keypress(function(event) {
+      $('#user-input').keypress(function (event) {
         if (event.which === 13) {
           $('#send-btn').click();
+        }
+      });
+
+      // Toggle sidebar untuk mobile
+      $('#toggleSidebar').click(function () {
+        $('#sidebar').toggleClass('active');
+        // Ganti ikon panah ketika sidebar terbuka atau tertutup
+        if ($('#sidebar').hasClass('active')) {
+          $('#toggleSidebar').html('<i class="fas fa-chevron-left"></i> Chat History');
+        } else {
+          $('#toggleSidebar').html('<i class="fas fa-chevron-right"></i> Chat History');
         }
       });
     });
